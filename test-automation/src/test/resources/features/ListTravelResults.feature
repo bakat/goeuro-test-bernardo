@@ -5,5 +5,7 @@ Feature: Travel results listing
 
 @PositiveScenario
 Scenario: Search results are sorted by price
-	Given a travel search from "Berlin" to "Prague"
+	Given a travel search from "Berlin, Germany" to "Prague, Czech Republic"
 	When the search is submitted
+	And the results are sorted by the "Cheapest" option
+	Then the travel results should be ordered by their prices in ascending order

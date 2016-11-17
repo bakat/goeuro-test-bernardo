@@ -2,16 +2,19 @@ package driver;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
@@ -203,13 +206,13 @@ public class ComponentFinder {
 			       .pollingEvery(5, TimeUnit.SECONDS)
 			       .ignoring(NoSuchElementException.class);
 
-	   Boolean elemento = wait.until(new Function<WebDriver, Boolean>() {
+	   Boolean element = wait.until(new Function<WebDriver, Boolean>() {
 	     public Boolean apply(WebDriver driver) {
 	       return driver.getPageSource().contains(text);
 	     }
 	   });
 	   
-	   if(elemento.equals(false)){
+	   if(element.equals(false)){
 		   System.out.println("Text " + text + " not found.");
 	   }
 	}
@@ -224,6 +227,12 @@ public class ComponentFinder {
 		element.sendKeys(text);
 	}
 	
+	public void enterKeyStroke(WebElement element){
+		waitForElementPresent(element);
+		Actions action = new Actions(webDriver);
+		action.sendKeys(element, Keys.ENTER);
+	}
+	
 	public void clearElementText(WebElement element){
 		element.clear();
 	}
@@ -232,6 +241,55 @@ public class ComponentFinder {
 		waitForElementPresent(element);
 		waitForElementToBeClickable(element);
 		element.click();
+	}
+	
+	public void clickElementThatContainsNameInsideASpan(WebElement element, String text){
+		List<WebElement> elements = element.findElements(By.tagName("span"));
+		
+		searchForElementAndClick(text, elements);
+	}
+
+	private void searchForElementAndClick(String text, List<WebElement> elements) {
+		for (WebElement webElement : elements) {
+			if(webElement.getText().contains(text)){
+				waitForElementPresent(webElement);
+				waitForElementToBeClickable(webElement);
+				webElement.click();
+			}
+		}
+	}
+	
+	public void clickElementByPartialLinkText(WebElement element, String text){
+		List<WebElement> elements = element.findElements(By.partialLinkText(text));
+		
+		searchForElementAndClick(text, elements);
+	}
+	
+	public List<BigDecimal> getPricesFromTravelResults(WebElement element){
+		List<WebElement> elements = element.findElements(By.tagName("div"));
+		List<WebElement> travelOptions = new ArrayList<WebElement>();
+		List<BigDecimal> priceList = new ArrayList<BigDecimal>();
+		
+		for (WebElement webElement : elements) {
+			if(webElement.getAttribute("data-test").equals("Result")){
+				travelOptions.add(webElement);
+			}
+		}
+		
+		for (WebElement travelOption : travelOptions) {
+			String priceMain = "";
+			String priceFraction = "";
+			
+			if(travelOption.getAttribute("class").contains("Result__priceMain")){
+				priceMain = travelOption.getText();
+			}
+			if(travelOption.getAttribute("class").contains("Result__priceFraction")){
+				priceFraction = travelOption.getText();
+			}
+			BigDecimal price = new BigDecimal(priceMain + "." + priceFraction);
+			priceList.add(price);
+		}
+		return priceList;
 	}
 	
 	public String getElementsText(WebElement element){
