@@ -16,24 +16,19 @@ public class MainPageSearch implements PageObjectInterface{
 	
 	@FindBy(how = How.ID, using="from_filter")
 	private WebElement inputFrom;
-	
 	@FindBy(how = How.ID, using="ui-id-1")
 	private WebElement inputFromAutoComplete;
-	
 	@FindBy(how = How.ID, using="to_filter")
 	private WebElement inputTo;
-	
 	@FindBy(how = How.ID, using="ui-id-2")
 	private WebElement inputToAutoComplete;
-	
 	@FindBy(how = How.ID, using="departure_date")
 	private WebElement departureDate;
-	
 	@FindBy(how = How.ID, using="search-form__submit-btn")
 	private WebElement searchButton;
-	
 	@FindBy(how = How.CLASS_NAME, using="hotel-checkbox__airbnb")
 	private WebElement searchForAccomodationCheck;
+	private String searchAccommodationText = "Search accommodation with";
 	
 	public MainPageSearch(WebDriver webDriver) {
 		finder = new ComponentFinder(webDriver);
@@ -44,6 +39,7 @@ public class MainPageSearch implements PageObjectInterface{
 		finder.verifyElementPresent(inputTo);
 		finder.verifyElementPresent(searchButton);
 		finder.verifyElementPresent(searchForAccomodationCheck);
+		finder.waitForTextPresent(searchAccommodationText);
 	}
 	
 	public ResultsPage searchForDestination(String from, String to){
