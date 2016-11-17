@@ -8,8 +8,10 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
+import org.openqa.selenium.support.PageFactory;
 
 import pageObjects.PageObjectInterface;
+import pageObjects.resultsPage.ResultsPage;
 import driver.ComponentFinder;
 
 public class MainPage implements PageObjectInterface{
@@ -28,5 +30,12 @@ public class MainPage implements PageObjectInterface{
 
 	public void verifyElementsPresent() {
 		finder.verifyElementPresent(loginLink);
+	}
+	
+	public ResultsPage performASearch(String from, String to){
+		MainPageSearch search = PageFactory.initElements(finder.getWebDriver(), MainPageSearch.class);
+		search.verifyElementsPresent();
+		
+		return search.searchForDestination(from, to);
 	}
 }
