@@ -1,11 +1,9 @@
 package driver;
 
 import java.io.File;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.By;
@@ -13,13 +11,17 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
+import util.TestAutomationProperties;
 
 import com.google.common.base.Function;
 
@@ -28,46 +30,20 @@ import cucumber.api.DataTable;
 public class ComponentFinder {
 	
 	private static final int TIMEOUT = 30000;
-	
-	private String browserChrome;
-	private String browserIE;
-	private String browserFireFox;
-	private String environmentProduction;
-	private String environmentQA;
-	private String defaultEnvironment;
+	private TestAutomationProperties properties;
 	private WebDriver webDriver;
-	private static final String PROPERTIES_FILE = 
-			"config/testAutomation.properties";
 	
 	public ComponentFinder() {
-		loadProperties();
+		properties = new TestAutomationProperties();
+		properties.loadProperties();
 	}
 	
 	public ComponentFinder(WebDriver driver){
-		loadProperties();
+		properties = new TestAutomationProperties();
+		properties.loadProperties();
 		webDriver = driver;
 	}
 
-	private void loadProperties() {
-		Properties propertiesFile = new Properties();
-		 
-    	try {
-    		propertiesFile.load(getClass().getClassLoader().getResourceAsStream(
-					PROPERTIES_FILE));
- 
-    		browserFireFox = propertiesFile.getProperty("BROWSER_FIREFOX");
-    		browserChrome = propertiesFile.getProperty("BROWSER_CHROME");
-    		browserIE = propertiesFile.getProperty("BROWSER_IE");
-    		environmentProduction = propertiesFile.getProperty("ENVIRONMENT_PROD");
-    		environmentQA = propertiesFile.getProperty("ENVIRONMENT_QA");
-    		defaultEnvironment = propertiesFile.getProperty("DEFAULT_ENVIRONMENT");
-    		
-    	} catch (IOException ex) {
-    		System.out.println("Could not load properties file. \r\n");
-    		ex.printStackTrace();
-        }
-	}
-	
 	public WebDriver getWebDriver(){
 		return webDriver;
 	}
@@ -97,22 +73,22 @@ public class ComponentFinder {
 					break;
 				
 				case CHROME:
-					file = new File(browserChrome);
+					file = new File(properties.getBrowserChrome());
 					System.setProperty("webdriver.chrome.driver", file.getAbsolutePath());
 
 					try {
-						//TODO
+						webDriver = new ChromeDriver();
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 					break;
 					
 				case IE:
-					file = new File(browserIE);
+					file = new File(properties.getBrowserIE());
 					System.setProperty("webdriver.ie.driver", file.getAbsolutePath());
 					
 					try {
-						//TODO
+						webDriver = new InternetExplorerDriver();
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -125,7 +101,7 @@ public class ComponentFinder {
 			}
 		} else if(browser == null){
 			try {
-				file = new File(browserFireFox);
+				file = new File(properties.getBrowserFireFox());
 				System.setProperty("webdriver.gecko.driver", file.getAbsolutePath());
 				webDriver = new FirefoxDriver();
 			} catch (Exception e) {
@@ -141,11 +117,11 @@ public class ComponentFinder {
 		if(environment != null){
 			switch (environment) {
 				case PRODUCTION:
-					webEnvironment = environmentProduction;
+					webEnvironment = properties.getEnvironmentProduction();
 					break;
 				
 				case QA:
-					webEnvironment = environmentQA;	
+					webEnvironment = properties.getEnvironmentQA();	
 					break;
 					
 				default:
@@ -153,12 +129,12 @@ public class ComponentFinder {
 					break;
 			}
 		} else {
-			if(defaultEnvironment.equals("QA")){
-				webEnvironment = environmentQA;
-			}else if(defaultEnvironment.equals("PRODUCTION")){
-				webEnvironment = environmentProduction;
+			if(properties.getDefaultEnvironment().equals("QA")){
+				webEnvironment = properties.getEnvironmentQA();
+			}else if(properties.getDefaultEnvironment().equals("PRODUCTION")){
+				webEnvironment = properties.getEnvironmentProduction();
 			} else{
-				webEnvironment = environmentQA;
+				webEnvironment = properties.getEnvironmentQA();
 			}
 		}
 		
