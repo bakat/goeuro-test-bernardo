@@ -19,12 +19,16 @@ public class ResultsPage implements PageObjectInterface{
 	@FindBy(how = How.CLASS_NAME, using="searchbar-wrapper")
 	private WebElement searchBar;
 	
+	@FindBy(how = How.CLASS_NAME, using="resultTabs")
+	private WebElement resultTabs;
+	
 	public ResultsPage(WebDriver webDriver) {
 		finder = new ComponentFinder(webDriver);
 	}
 
 	public void verifyElementsPresent() {
 		finder.verifyElementPresent(searchBar);
+		finder.waitForTheFirstTravelResult(resultTabs);
 	}
 	
 	public void sortResultsByTheCheapestPrice(){

@@ -58,7 +58,9 @@ public class Steps {
 		BigDecimal lastPrice = new BigDecimal("0.00");
 		
 		for (BigDecimal price : pricesList) {
-			Assert.assertTrue(price.compareTo(lastPrice) == 1);
+			Assert.assertTrue(price.compareTo(lastPrice) == 1 || price.compareTo(lastPrice) == 0);
+			System.out.println("The price " + lastPrice.toString() + " is less than or equal to " + price.toString());
+			lastPrice = price;
 		}
 	}
 }

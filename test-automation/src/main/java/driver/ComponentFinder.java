@@ -265,33 +265,77 @@ public class ComponentFinder {
 		searchForElementAndClick(text, elements);
 	}
 	
+	public void waitForTheFirstTravelResult(WebElement element){
+		List<WebElement> elements = element.findElements(By.tagName("span"));
+		
+		for (WebElement webElement : elements) {
+			if(webElement.getText().contains("Select")){
+				waitForElementPresent(webElement);
+				waitForElementToBeClickable(webElement);
+				return;
+			}
+		}
+	}
+	
 	public List<BigDecimal> getPricesFromTravelResults(WebElement element){
 		List<WebElement> elements = element.findElements(By.tagName("div"));
 		List<WebElement> travelOptions = new ArrayList<WebElement>();
 		List<BigDecimal> priceList = new ArrayList<BigDecimal>();
 		
 		for (WebElement webElement : elements) {
-			if(webElement.getAttribute("data-test").equals("Result")){
-				travelOptions.add(webElement);
+			if(hasDataTestAttribute(webElement)){
+				if(webElement.getAttribute("data-test").equals("Result")){
+					travelOptions.add(webElement);
+				}
 			}
 		}
 		
 		for (WebElement travelOption : travelOptions) {
+			List<WebElement> listOfSpanTags = travelOption.findElements(By.tagName("span"));
 			String priceMain = "";
 			String priceFraction = "";
 			
-			if(travelOption.getAttribute("class").contains("Result__priceMain")){
-				priceMain = travelOption.getText();
+			for (WebElement span : listOfSpanTags) {
+				if(hasClassAttribute(span)){
+					if(span.getAttribute("class").contains("Result__priceMain")){
+						priceMain = span.getText();
+					}
+					if(span.getAttribute("class").contains("Result__priceFraction")){
+						priceFraction = span.getText();
+					}
+				}
 			}
-			if(travelOption.getAttribute("class").contains("Result__priceFraction")){
-				priceFraction = travelOption.getText();
+			
+			if(!priceMain.equals("")){
+				BigDecimal price = new BigDecimal(priceMain + "." + priceFraction);
+				priceList.add(price);
 			}
-			BigDecimal price = new BigDecimal(priceMain + "." + priceFraction);
-			priceList.add(price);
 		}
 		return priceList;
 	}
 	
+	private boolean hasClassAttribute(WebElement span) {
+		try {
+			if(!span.getAttribute("class").isEmpty()){
+				return true;
+			}
+		} catch (Exception e) {
+			
+		}
+		return false;
+	}
+
+	private boolean hasDataTestAttribute(WebElement webElement) {
+		try {
+			if(!webElement.getAttribute("data-test").isEmpty()){
+				return true;
+			}
+		} catch (Exception e) {
+			
+		}
+		return false;
+	}
+
 	public String getElementsText(WebElement element){
 		waitForElementPresent(element);
 		return element.getText();
